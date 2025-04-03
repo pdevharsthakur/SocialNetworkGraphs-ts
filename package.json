@@ -1,0 +1,29 @@
+{
+  "name": "social-network-graphs-ts",
+  "version": "1.0.0",
+  "description": "",
+  "main": "./dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "start:small": "node dist/index.js data/small_test_graph.txt 1",
+    "start:facebook": "node dist/index.js data/facebook_1000.txt 1",
+    "start:twitter": "node dist/index.js data/twitter_combined.txt 1",
+    "dev": "pnpm build && pnpm start",
+    "copy-data": "cp -r data dist/",
+    "postbuild": "npm run copy-data",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "format:all": "prettier --write \"**/*.{ts,js,json,md}\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.7.0",
+  "dependencies": {
+    "prettier": "^3.5.3",
+    "typescript": "^5.8.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.14.0"
+  }
+}
