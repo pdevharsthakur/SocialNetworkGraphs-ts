@@ -76,14 +76,14 @@ pnpm dev
 
 The project includes several real-world social network datasets:
 
-| Dataset | Description | Nodes | Edges | Source |
-|---------|-------------|-------|-------|--------|
-| `small_test_graph.txt` | Simple test graph | 14 | 34 | - |
-| `facebook_1000.txt` | Facebook friendships (small) | 1,000 | ~15,000 | Stanford SNAP |
-| `facebook_2000.txt` | Facebook friendships (medium) | 2,000 | ~30,000 | Stanford SNAP |
-| `facebook_ucsd.txt` | UCSD Facebook network | ~14,000 | ~450,000 | Amanda L. Traud, et al. |
-| `twitter_combined.txt` | Twitter follower network | ~80,000 | ~1.8M | Stanford SNAP |
-| `twitter_higgs.txt` | Twitter retweets (Higgs boson) | ~450,000 | ~14M | Stanford SNAP |
+| Dataset                | Description                    | Nodes    | Edges    | Source                  |
+| ---------------------- | ------------------------------ | -------- | -------- | ----------------------- |
+| `small_test_graph.txt` | Simple test graph              | 14       | 34       | -                       |
+| `facebook_1000.txt`    | Facebook friendships (small)   | 1,000    | ~15,000  | Stanford SNAP           |
+| `facebook_2000.txt`    | Facebook friendships (medium)  | 2,000    | ~30,000  | Stanford SNAP           |
+| `facebook_ucsd.txt`    | UCSD Facebook network          | ~14,000  | ~450,000 | Amanda L. Traud, et al. |
+| `twitter_combined.txt` | Twitter follower network       | ~80,000  | ~1.8M    | Stanford SNAP           |
+| `twitter_higgs.txt`    | Twitter retweets (Higgs boson) | ~450,000 | ~14M     | Stanford SNAP           |
 
 ## 🏗️ Project Structure
 
@@ -125,6 +125,7 @@ pnpm format:all
 ### 1. Strongly Connected Components (Kosaraju's Algorithm)
 
 The project implements Kosaraju's algorithm for finding strongly connected components:
+
 1. Perform DFS on the original graph and keep track of finish times
 2. Transpose the graph (reverse all edges)
 3. Perform DFS on the transposed graph in order of decreasing finish times
@@ -132,6 +133,7 @@ The project implements Kosaraju's algorithm for finding strongly connected compo
 ### 2. Trend Setter Identification
 
 Influential users are identified based on:
+
 - Number of connections (degree centrality)
 - Position in the network
 - Ability to reach other users
@@ -139,14 +141,20 @@ Influential users are identified based on:
 ### 3. Viral Content Propagation
 
 The simulation models how information spreads:
+
 - Starting from any node
 - Following connection pathways
 - With configurable propagation characteristics
 
+## 🙏 Acknowledgments
+
+This project is highly inspired by and adapted from a similar project written in Java:
+
+- **Project name**: SocialNetworkGraphs
+- **GitHub Repository**: [madhu1607/SocialNetworkGraphs](https://github.com/madhu1607/SocialNetworkGraphs.git)
+
+While the implementation is written in TypeScript with a different architecture, the core concepts and algorithms are based on this excellent Java implementation.
+
 ## 📄 License
 
-This project is licensed under the ISC License.
-
-## ✨ Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request. 
+This project is licensed under the MIT License.

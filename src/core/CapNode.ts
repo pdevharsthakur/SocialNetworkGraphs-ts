@@ -1,12 +1,12 @@
 /**
  * @file CapNode.ts
  * @description Implementation of the Node interface for the social network graph.
- * 
+ *
  * This class represents a node (user) in the social network with capabilities to:
  * - Track neighbors (users they follow)
  * - Track followers (users who follow them)
  * - Mark trend setters (influential users)
- * 
+ *
  * Each node is identified by a unique numeric ID and maintains its network connections.
  * The implementation supports social network analysis operations including identifying
  * trend setters and simulating information propagation.
