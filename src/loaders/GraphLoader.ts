@@ -17,10 +17,11 @@
 import fs from 'fs';
 import readline from 'readline';
 import { Graph } from '../interfaces/interfaces.js';
+import { OutputFormatter } from '../utils/OutputFormatter.js';
 
 export class GraphLoader {
   static async loadGraph(graph: Graph, filePath: string): Promise<void> {
-    console.log(`Loading graph from ${filePath}...`);
+    OutputFormatter.loadingMessage(`Loading graph from ${filePath}...`);
 
     // First pass to collect all vertices
     const vertices = new Set<number>();
@@ -35,7 +36,7 @@ export class GraphLoader {
     for await (const line of rl) {
       lineCount++;
       if (lineCount % 100000 === 0) {
-        console.log(
+        OutputFormatter.loadingProgress(
           `Processing vertices: ${lineCount} lines read, ${vertices.size} vertices found`
         );
       }
@@ -49,11 +50,11 @@ export class GraphLoader {
           vertices.add(to);
         }
       } catch (error) {
-        console.error(`Error parsing line ${lineCount}: ${line}`);
+        OutputFormatter.error(`Error parsing line ${lineCount}: ${line}`);
       }
     }
 
-    console.log(`Adding ${vertices.size} vertices to graph...`);
+    OutputFormatter.loadingMessage(`Adding ${vertices.size} vertices to graph...`);
     // Add all vertices to the graph
     vertices.forEach(v => graph.addVertex(v));
 
@@ -68,7 +69,7 @@ export class GraphLoader {
     for await (const line of rl2) {
       lineCount++;
       if (lineCount % 100000 === 0) {
-        console.log(`Processing edges: ${lineCount} lines read`);
+        OutputFormatter.loadingProgress(`Processing edges: ${lineCount} lines read`);
       }
 
       if (line.trim() === '') continue;
@@ -79,10 +80,10 @@ export class GraphLoader {
           graph.addEdge(from, to);
         }
       } catch (error) {
-        console.error(`Error adding edge at line ${lineCount}: ${line}`);
+        OutputFormatter.error(`Error adding edge at line ${lineCount}: ${line}`);
       }
     }
 
-    console.log(`Graph loading complete. ${lineCount} lines processed.`);
+    OutputFormatter.loadingSuccess(`Graph loading complete. ${lineCount} lines processed.`);
   }
 }

@@ -16,6 +16,7 @@
 import { Graph, Node } from '../interfaces/interfaces.js';
 import { CapNode } from './CapNode.js';
 import { TrendSetterComparator } from '../algorithms/TrendSetterComparator.js';
+import { OutputFormatter } from '../utils/OutputFormatter.js';
 
 export class CapGraph implements Graph {
   private listMap: Map<number, CapNode>;
@@ -327,9 +328,7 @@ export class CapGraph implements Graph {
 
       if (this.shouldContinueGenerating(n, 10, previousGraphLength, currentGraphLength)) {
         previousGraphLength = currentGraphLength;
-        console.log(
-          `Generation ${n}: Nodes reached: ${Array.from(subGraph.getVertexIDs()).join(', ')}`
-        );
+        OutputFormatter.viralSimulationGeneration(n, Array.from(subGraph.getVertexIDs()));
         n++;
       }
     }

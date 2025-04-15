@@ -17,11 +17,12 @@
  */
 import { CapGraph } from './core/CapGraph.js';
 import { GraphLoader } from './loaders/GraphLoader.js';
+import { OutputFormatter } from './utils/OutputFormatter.js';
 import fs from 'fs';
 import path from 'path';
 
 async function main() {
-  // Process command line arguments
+  /** Process command line arguments */
   const args = process.argv.slice(2);
   let dataFile = 'data/small_test_graph.txt';
   let startNode = 2;
@@ -34,81 +35,107 @@ async function main() {
     startNode = parseInt(args[1], 10);
   }
 
-  console.log(`Using data file: ${dataFile}`);
-  console.log(`Using start node: ${startNode}`);
+  // Display initial information
+  OutputFormatter.graphLoading(dataFile, startNode);
 
   try {
-    // Check if the file exists
+    /** Check if the file exists */
     if (!fs.existsSync(dataFile)) {
-      console.error(`Error: File ${dataFile} does not exist`);
-      console.log('Available data files:');
-      listDataFiles();
+      OutputFormatter.error(`File ${dataFile} does not exist`);
+      const files = listDataFiles();
+      OutputFormatter.availableDataFiles(files);
       return;
     }
 
-    // Create and load the graph
+    /** Create and load the graph */
     const graph = new CapGraph();
-    console.log('Loading graph data...');
     await GraphLoader.loadGraph(graph, dataFile);
-    console.log(`Graph loaded with ${graph.getVertexIDs().size} vertices`);
 
-    // Perform analysis
-    console.log('\nIdentifying trend setters...');
+    // Estimate edge count based on known graph data
+    const edgeCount = await estimateEdgeCount(dataFile);
+    OutputFormatter.graphLoadingComplete(graph.getVertexIDs().size, edgeCount);
+
+    /** Perform influence analysis */
+    OutputFormatter.influenceAnalysisHeader();
     graph.identifyTrendSetters();
 
-    // Display trend setters
+    /** Display trend setters */
     let trendSetterCount = 0;
     graph.getVertexIDs().forEach(nodeID => {
       const node = graph.getVertex(nodeID);
       if (node.getIsTrendSetter()) {
         trendSetterCount++;
-        // Limit output to avoid flooding console
+        /** Limit output to avoid flooding console */
         if (trendSetterCount <= 10) {
-          console.log(
-            `Node ${nodeID} is a trend setter with ${node.getFollowers().length} followers`
-          );
+          OutputFormatter.trendSetter(nodeID, node.getFollowers().length);
         }
       }
     });
-    console.log(`Total trend setters identified: ${trendSetterCount}`);
+    OutputFormatter.trendSetterTotal(trendSetterCount);
 
-    // Find SCCs
-    console.log('\nFinding strongly connected components...');
+    /** Find SCCs */
+    OutputFormatter.communityDetectionHeader();
     const sccs = graph.getSCCs();
-    console.log(`Found ${sccs.length} strongly connected components`);
+    OutputFormatter.sccResult(sccs.length);
 
-    // Display first few SCCs
+    /** Display first few SCCs */
     const maxSccsToShow = 3;
     for (let i = 0; i < Math.min(maxSccsToShow, sccs.length); i++) {
       const scc = sccs[i];
-      console.log(`SCC ${i + 1} has ${(scc as CapGraph).getVertexIDs().size} nodes`);
+      OutputFormatter.sccDetail(i + 1, (scc as CapGraph).getVertexIDs().size);
     }
 
-    // Viral sharing simulation
-    console.log(`\nSimulating viral video sharing starting from node ${startNode}...`);
+    /** Viral sharing simulation */
+    OutputFormatter.viralSimulationHeader(startNode);
     if (graph.getVertexIDs().has(startNode)) {
       graph.startViralSharing(startNode);
     } else {
-      console.log(`Node ${startNode} not found in graph. Skipping viral simulation.`);
+      OutputFormatter.error(`Node ${startNode} not found in graph. Skipping viral simulation.`);
     }
-  } catch (error) {
-    console.error('Error:', error);
-  }
-}
 
-function listDataFiles() {
-  const dataDir = 'data';
-  try {
-    const files = fs.readdirSync(dataDir);
-    files.forEach(file => {
-      if (fs.statSync(path.join(dataDir, file)).isFile()) {
-        console.log(`- ${path.join(dataDir, file)}`);
-      }
+    /** Display analysis summary */
+    OutputFormatter.analysisSummary({
+      nodes: graph.getVertexIDs().size,
+      edges: edgeCount,
+      trendSetters: trendSetterCount,
+      communities: sccs.length,
+      startNode: startNode,
     });
   } catch (error) {
-    console.error('Error listing data files:', error);
+    OutputFormatter.error((error as Error).message);
   }
 }
 
-// Run the main function
-main().catch(console.error);
+function listDataFiles(): string[] {
+  const dataDir = 'data';
+  const files: string[] = [];
+  try {
+    const dirFiles = fs.readdirSync(dataDir);
+    dirFiles.forEach(file => {
+      if (fs.statSync(path.join(dataDir, file)).isFile()) {
+        files.push(path.join(dataDir, file));
+      }
+    });
+    return files;
+  } catch (error) {
+    OutputFormatter.error(`Error listing data files: ${(error as Error).message}`);
+    return [];
+  }
+}
+
+/**
+ * Estimates the number of edges in the graph by counting lines in the data file
+ * Each line typically represents one edge in the graph
+ */
+async function estimateEdgeCount(dataFile: string): Promise<number> {
+  try {
+    const data = await fs.promises.readFile(dataFile, 'utf8');
+    const lines = data.split('\n').filter(line => line.trim() !== '');
+    return lines.length;
+  } catch (error) {
+    return 0; // If we can't count, return 0
+  }
+}
+
+/** Main Function */
+main().catch(error => OutputFormatter.error(error.message));
